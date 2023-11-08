@@ -1,20 +1,25 @@
 package engine
 
 type iEngine interface {
-	Download()
+	Download(version string) ([]byte, error)
+	Build(javaFile []byte) error
 	List() ([]string, error)
+	Run(path string) error
 }
 
 // Engines
-const (
-	VANILLA_ENGINE = "vanilla"
+var (
+	AVAILABLE_ENGINES = []string{}
 )
 
 func EngineFactory(engine string) iEngine {
-	switch engine {
-	case VANILLA_ENGINE:
-		return newVanillaEngine()
-	default:
-		panic("Invalid engine")
+	exists, err := engineRepository.ExistsEngine(engine)
+	if err != nil {
+		panic(err)
 	}
+	if !exists {
+		panic("engine doesn't exists")
+	}
+
+	return newEngine(engine)
 }
